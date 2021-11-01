@@ -1635,7 +1635,8 @@ $axure.internal(function ($ax) {
     }
     $ax.event.raiseErrorEvents = _raiseErrorEvents;
 
-    var _raiseSyntheticEvent = function(elementId, eventName, skipShowDescription, eventInfo, nonSynthetic) {
+    var _raiseSyntheticEvent = function (elementId, eventName, skipShowDescription, eventInfo, nonSynthetic) {
+        if ($ax.style.IsWidgetDisabled(elementId)) return;
         // Empty string used when this is an event directly on the page.
         var dObj = elementId === '' ? $ax.pageData.page : $ax.getObjectFromElementId(elementId);
         var axEventObject = dObj && dObj.interactionMap && dObj.interactionMap[eventName];

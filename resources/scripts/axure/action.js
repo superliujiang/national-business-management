@@ -836,6 +836,7 @@
 
         var startX;
         var startY;
+        var win = ((SAFARI && IOS) || SHARE_APP) ? $('#ios-safari-html') : $(window)
 
         switch(moveInfo.moveType) {
         case "location":
@@ -869,8 +870,8 @@
                 //startX = $ax('#' + elementId).locRelativeIgnoreLayer(false);
                 //startY = $ax('#' + elementId).locRelativeIgnoreLayer(true);
                 if(jobj.css('position') == 'fixed') {
-                    startX -= $(window).scrollLeft();
-                    startY -= $(window).scrollTop();
+                    startX -= win.scrollLeft();
+                    startY -= win.scrollTop();
                 }
             }
 
@@ -975,8 +976,8 @@
                         //startX = $ax('#' + elementId).locRelativeIgnoreLayer(false);
                         //startY = $ax('#' + elementId).locRelativeIgnoreLayer(true);
                         if(jobj.css('position') == 'fixed') {
-                            startX -= $(window).scrollLeft();
-                            startY -= $(window).scrollTop();
+                            startX -= win.scrollLeft();
+                            startY -= win.scrollTop();
                         }
                     }
 

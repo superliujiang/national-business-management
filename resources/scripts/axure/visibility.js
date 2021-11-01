@@ -653,7 +653,7 @@
             $ax.event.leavingState(oldStateId);
             if (hasEasing) _popContainer(id, true);
 
-            $ax.dynamicPanelManager.updateMobileScroll(id, stateId);
+            $ax.dynamicPanelManager.updateMobileScroll(id, stateId, true);
         };
         // Must do state out first, so if we cull by new state, location is correct
         _setVisibility(id, oldStateId, {

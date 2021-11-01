@@ -437,6 +437,35 @@ $axure.internal(function($ax) {
         }
     };
 
+    $ax.public.fn.getCursorOffset = function (elementId) {
+        var cursorOffset = { x: 0, y: 0 };
+
+        var element = $ax('#' + elementId);
+        var dynamicPanelParents = element.getParents(true, 'dynamicPanel')[0];
+        // repeater can be only one
+        var repeaterParents = element.getParents(false, 'repeater');
+        var relativeLocationParents = dynamicPanelParents.concat(repeaterParents);
+        var getParentOffset = function (elementId, parentId) {
+            var parentType = $ax.getTypeFromElementId(parentId);
+            if ($ax.public.fn.IsDynamicPanel(parentType)) {
+                return $ax('#' + parentId).offsetLocation();
+            }
+            if ($ax.public.fn.IsRepeater(parentType)) {
+                return $ax.repeater.getRepeaterElementOffset(parentId, elementId);
+            }
+            return { x: 0, y: 0 };
+        };
+        for (var i = 0; i < relativeLocationParents.length; i++) {
+            var parentId = relativeLocationParents[i];
+            if (parentId) {
+                var parentOffset = getParentOffset(elementId, parentId);
+                cursorOffset.x += parentOffset.x;
+                cursorOffset.y += parentOffset.y;
+            }
+        }
+        return cursorOffset;
+    }
+
     $ax.public.fn.moveTo = function (x, y, options) {
         var elementIds = this.getElementIds();
         for(var index = 0; index < elementIds.length; index++) {
@@ -939,7 +968,7 @@ $axure.internal(function($ax) {
 
         var viewportLocation;
         if ($scrollable.is('body')) viewportLocation = $ax('#' + id).viewportLocation();
-        else viewportLocation = $ax('#' + id).pageBoundingRect(true, $scrollable.attr('id')).location;
+        else viewportLocation = $ax('#' + id).pageBoundingRect(true, $scrollable.attr('id'), true).location;
 
         var targetLeft = viewportLocation.left;
         var targetTop = viewportLocation.top;
@@ -1400,7 +1429,7 @@ $axure.internal(function($ax) {
     };
 
     //relative to the parent
-    $ax.public.fn.offsetBoundingRect = function (ignoreRotation) {
+    $ax.public.fn.offsetBoundingRect = function (ignoreRotation, ignoreOuterShadow) {
         var elementId = this.getElementIds()[0];
         if (!elementId) return undefined;
         
@@ -1429,7 +1458,7 @@ $axure.internal(function($ax) {
 
             var oShadow = style.outerShadow;
 
-            if (oShadow.on) {
+            if (oShadow.on && !ignoreOuterShadow) {
                 if (oShadow.offsetX < 0) {
                     position.left += oShadow.offsetX;
                     position.left -= oShadow.blurRadius;
@@ -1480,7 +1509,7 @@ $axure.internal(function($ax) {
 
             var oShadow = style.outerShadow;
 
-            if (oShadow.on) {
+            if (oShadow.on && !ignoreOuterShadow) {
                 if (oShadow.offsetX < 0) size.width -= oShadow.offsetX;
                 else size.width += oShadow.offsetX;
                 if (oShadow.offsetY < 0) size.height -= oShadow.offsetY;
@@ -1608,8 +1637,8 @@ $axure.internal(function($ax) {
         return _populateBoundingRect(boundingRect);
     }
 
-    $ax.public.fn.size = function () {
-        var boundingRect = this.offsetBoundingRect(true);
+    $ax.public.fn.size = function ({ ignoreRotation = true, ignoreOuterShadow = true } = {}) {
+        var boundingRect = this.offsetBoundingRect(ignoreRotation, ignoreOuterShadow);
         return boundingRect ? boundingRect.size : undefined;
 
         //var firstId = this.getElementIds()[0];
